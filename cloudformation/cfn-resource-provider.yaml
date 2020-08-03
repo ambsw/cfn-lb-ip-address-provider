@@ -11,8 +11,13 @@ Parameters:
   CFNCustomProviderZipFileName:
     Type: String
     Default: 'lambdas/cfn-lb-ip-address-provider-0.2.5.zip'
+  PermissionsBoundary:
+    Description: 'Optional ARN for a policy that will be used as the permission boundary for all roles created by this template.'
+    Type: String
+    Default: ''
 Conditions:
   UseBucketName: !Not [!Equals [!Ref S3BucketName, ""]]
+  HasPermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, '']]
 Resources:
   LambdaPolicy:
     Type: AWS::IAM::Policy
@@ -44,6 +49,7 @@ Resources:
             Principal:
               Service:
                 - lambda.amazonaws.com
+      PermissionsBoundary: !If [HasPermissionsBoundary, !Ref PermissionsBoundary, !Ref 'AWS::NoValue']
   CFNCustomProviderLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
